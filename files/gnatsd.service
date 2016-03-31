@@ -1,0 +1,15 @@
+[Unit]
+Description=NATS Enterprise Messaging System
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/tmp/gnatsd.pid
+User=gnatsd
+Group=gnatsd
+Environment="GOPATH=/usr/local/go/"
+ExecStartPre=-/usr/bin/rm /tmp/gnatsd.pid
+ExecStart=/usr/local/go/bin/gnatsd -c /etc/gnatsd.conf
+
+[Install]
+WantedBy=multi-user.target

@@ -1,2 +1,6 @@
 ---
-# handlers file for nats/
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: restart gnatsd
+  service: name=gnatsd state=restarted

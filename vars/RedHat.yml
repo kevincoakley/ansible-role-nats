@@ -1,0 +1,4 @@
+---
+nats_packages:
+  - golang 
+  - git

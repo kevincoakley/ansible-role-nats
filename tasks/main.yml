@@ -1,2 +1,39 @@
 ---
-# tasks file for nats/
+- name: Include OS family specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Download and install yum packages
+  yum: name={{ item }} state=installed
+  with_items: nats_packages
+  when: ansible_os_family == "RedHat"
+
+- name: Create the gnatsd group
+  group: name=gnatsd state=present system=yes
+
+- name: Create the gnatsd user
+  user: name=gnatsd groups=gnatsd append=yes
+
+- name: Create the go dir
+  file: path=/usr/local/go state=directory owner=root group=root mode=0755
+
+- name: Create the go/bin dir
+  file: path=/usr/local/go/bin state=directory owner=root group=root mode=0755
+
+- name: Install NATS
+  shell: go get github.com/nats-io/gnatsd
+  environment:
+    GOPATH: /usr/local/go/
+
+- name: Create the NATS systemd service file
+  copy: src=gnatsd.service dest=/etc/systemd/system/gnatsd.service owner=gnatsd group=gnatsd mode=0644
+  notify: 
+  - reload systemd
+
+- name: Create /etc/gnatsd.conf file
+  template: src=gnatsd.conf.j2 dest=/etc/gnatsd.conf owner=gnatsd group=gnatsd mode=0644
+  notify: 
+  - restart gnatsd
+
+- name: Ensure NATS is started and enabled on boot
+  service: name=gnatsd state=started enabled=yes 
+  

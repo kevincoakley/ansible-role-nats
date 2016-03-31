@@ -1,2 +1,2 @@
 ---
-# defaults file for nats/
+nats_ansible_host_group: nats
